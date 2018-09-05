@@ -1,15 +1,14 @@
 package com.tgippi.axon.rest;
 
 import com.tgippi.axon.commands.IssueCommand;
-import com.tgippi.axon.model.CardSummary;
+import com.tgippi.axon.commands.RedeemCommand;
+import com.tgippi.axon.dto.CardSummaries;
 import com.tgippi.axon.query.FetchCardSummariesQuery;
 import org.axonframework.config.Configuration;
 import org.axonframework.queryhandling.responsetypes.ResponseTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 public class ApiController {
@@ -23,23 +22,25 @@ public class ApiController {
     }
 
     @RequestMapping("/read")
-    public String readSomething() throws Exception {
-        List<CardSummary> cardSummaries = configuration.queryGateway().query(
+    public CardSummaries readSomething() throws Exception {
+        return configuration.queryGateway().query(
                 new FetchCardSummariesQuery(2, 0),
-                ResponseTypes.multipleInstancesOf(CardSummary.class))
+                ResponseTypes.instanceOf(CardSummaries.class))
                 .get();
-
-        StringBuilder sb = new StringBuilder();
-        cardSummaries.forEach((CardSummary summary) ->
-            sb.append(summary.toString()).append("\n")
-        );
-        return sb.toString();
     }
 
-    @RequestMapping("/add")
-    public String postSomething() {
+    @RequestMapping("/issue")
+    public String issue() {
         configuration.commandGateway().sendAndWait(
             new IssueCommand("gc1", 100)
+        );
+        return "Issue Command abgeschickt";
+    }
+
+    @RequestMapping("/redeem")
+    public String redeem() {
+        configuration.commandGateway().sendAndWait(
+            new RedeemCommand("gc1", 50)
         );
         return "Command abgeschickt";
     }
