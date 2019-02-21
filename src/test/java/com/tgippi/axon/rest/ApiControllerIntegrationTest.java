@@ -1,5 +1,8 @@
 package com.tgippi.axon.rest;
 
+import org.axonframework.config.Configuration;
+import org.axonframework.eventhandling.EventProcessor;
+import org.axonframework.eventhandling.TrackingEventProcessor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +10,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -20,23 +25,31 @@ public class ApiControllerIntegrationTest {
     @Autowired
     private MockMvc mvc;
 
-    @Test
-    public void testIndex() throws Exception {
-        this.mvc.perform(get("/")).andExpect(status().isOk())
-                .andExpect(content().string("Greetings from Spring Boot!"));
-    }
+    @Autowired
+    private Configuration axonConfiguration;
 
     @Test
     public void testIssue() throws Exception {
         this.mvc.perform(get("/issue")).andExpect(status().isOk());
-        this.mvc.perform(get("/read")).andExpect(status().isOk())
-                .andExpect(content().string("{\"cardSummaries\":[{\"id\":\"gc1\",\"initialAmount\":100,\"remainingAmount\":100}]}"));
+
+        Optional<EventProcessor> eventProcessor = axonConfiguration.eventProcessingConfiguration()
+                .eventProcessor("cardsummary");
+
+        while(true) {
+            if (eventProcessor.isPresent() && eventProcessor.get() instanceof TrackingEventProcessor) {
+                checkAndRestartTEP((TrackingEventProcessor) eventProcessor.get());
+            }
+            Thread.sleep(10000);
+        }
     }
 
-    @Test
-    public void testRedeem() throws Exception {
-        this.mvc.perform(get("/redeem")).andExpect(status().isOk());
-        this.mvc.perform(get("/read")).andExpect(status().isOk())
-                .andExpect(content().string("{\"cardSummaries\":[{\"id\":\"gc1\",\"initialAmount\":100,\"remainingAmount\":50}]}"));
+    private void checkAndRestartTEP(TrackingEventProcessor trackingEventProcessor) {
+        System.out.println("Running: " + trackingEventProcessor.isRunning() +
+                " ; Error: " + trackingEventProcessor.isError());
+
+        if (!trackingEventProcessor.isRunning()) {
+            System.out.println("Starte TrackingEventProcessor Neu!");
+            trackingEventProcessor.start();
+        }
     }
 }

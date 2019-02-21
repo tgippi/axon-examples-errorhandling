@@ -16,7 +16,7 @@
 
   <properties>
       <java.version>1.8</java.version>
-      <axon.version>3.3.3</axon.version>
+      <axon.version>3.4.2</axon.version>
   </properties>
 
   <dependencies>
