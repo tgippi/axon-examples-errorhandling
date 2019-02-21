@@ -1,12 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.tgippi</groupId>
-  <artifactId>my-axon-demo</artifactId>
-  <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
-  <name>my-axon-demo</name>
-  <url>http://maven.apache.org</url>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.tgippi</groupId>
+    <artifactId>my-axon-demo</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <name>my-axon-demo</name>
+    <url>http://maven.apache.org</url>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -14,60 +14,155 @@
         <version>2.0.3.RELEASE</version>
     </parent>
 
-  <properties>
-      <java.version>1.8</java.version>
-      <axon.version>3.4.2</axon.version>
-  </properties>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.8</java.version>
+        <axon.version>3.4.2</axon.version>
+        <dockermavenplugin.version>0.23.0</dockermavenplugin.version>
 
-  <dependencies>
+        <!-- Properties for mysql database docker container -->
+        <docker.image.mysql>mysql:5.5</docker.image.mysql>
+        <docker.image.mysql.database>my-axon-demo</docker.image.mysql.database>
+        <docker.image.mysql.root.password>root</docker.image.mysql.root.password>
+        <docker.image.mysql.user>axon</docker.image.mysql.user>
+        <docker.image.mysql.password>axon</docker.image.mysql.password>
+        <docker.image.mysql.portmapping>3306:3306</docker.image.mysql.portmapping>
+    </properties>
 
-    <dependency>
-      <groupId>org.axonframework</groupId>
-      <artifactId>axon-core</artifactId>
-      <version>${axon.version}</version>
-    </dependency>
+    <dependencies>
 
-    <dependency>
-      <groupId>org.axonframework</groupId>
-      <artifactId>axon-spring</artifactId>
-      <version>${axon.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.axonframework</groupId>
+            <artifactId>axon-core</artifactId>
+            <version>${axon.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.axonframework</groupId>
-      <artifactId>axon-spring-boot-starter</artifactId>
-      <version>${axon.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>org.axonframework</groupId>
+            <artifactId>axon-spring</artifactId>
+            <version>${axon.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>org.axonframework</groupId>
+            <artifactId>axon-spring-boot-starter</artifactId>
+            <version>${axon.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-  </dependencies>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.40</version>
+        </dependency>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${dockermavenplugin.version}</version>
+
+                <configuration>
+                    <verbose>true</verbose>
+                    <images>
+                        <image>
+                            <name>${docker.image.mysql}</name>
+                            <alias>local-mysql-database</alias>
+                            <run>
+                                <env>
+                                    <MYSQL_ROOT_PASSWORD>${docker.image.mysql.root.password}</MYSQL_ROOT_PASSWORD>
+                                    <MYSQL_DATABASE>${docker.image.mysql.database}</MYSQL_DATABASE>
+                                    <MYSQL_USER>${docker.image.mysql.user}</MYSQL_USER>
+                                    <MYSQL_PASSWORD>${docker.image.mysql.password}</MYSQL_PASSWORD>
+                                </env>
+                                <ports>
+                                    <port>${docker.image.mysql.portmapping}</port>
+                                </ports>
+                                <wait>
+                                    <log>MySQL init process done. Ready for start up.</log>
+                                    <time>8000</time>
+                                </wait>
+                            </run>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>container-start</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>container-stop</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unit-test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/*IT.java</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/*Test.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <phase>integration-test</phase>
+                        <configuration>
+                            <excludes>
+                                <exclude>none</exclude>
+                            </excludes>
+                            <includes>
+                                <include>**/*IT.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

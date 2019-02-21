@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ApiControllerIntegrationTest {
+public class AxonTrackingEventProcessorFailureIT {
 
     @Autowired
     private MockMvc mvc;
