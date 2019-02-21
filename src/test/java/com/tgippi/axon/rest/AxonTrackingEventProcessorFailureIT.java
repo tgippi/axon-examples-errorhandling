@@ -17,6 +17,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Testklasse, welche die Fehlerzustände vom Axon-TEP versucht zu simulieren.
+ * Voraussetzung: Der konfigurierte ListenerInvocationErrorHandler muss die Exception an den TEP durchreichen
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -28,9 +32,38 @@ public class AxonTrackingEventProcessorFailureIT {
     @Autowired
     private Configuration axonConfiguration;
 
+    /**
+     * Stellt den Zustand her, dass der Tracking Event Processor in den Retry-Modus
+     * gerät und das erzeugte Event immer wieder versucht abzuarbeiten.
+     */
     @Test
-    public void testIssue() throws Exception {
-        this.mvc.perform(get("/issue")).andExpect(status().isOk());
+    public void testAnyException() throws Exception {
+        testError("/issueAnyException");
+    }
+
+    /**
+     * Stellt den Zustand her, dass der Tracking Event Processor in den PAUSED_ERROR-State
+     * gerät und aufhört zu arbeiten. Wird im Test jedoch wieder ins Leben gerufen und läuft dann
+     * wieder an.
+     */
+    @Test
+    public void testError() throws Exception {
+        testError("/issueError");
+    }
+
+    /**
+     * Stellt den Zustand her, dass der Tracking Event Processor in den SHUTDOWN-State
+     * gerät und aufhört zu arbeiten. Wird im Test jedoch wieder ins Leben gerufen und läuft dann
+     * in einen ungültigen Zustand: Alter Thread wartet auf Beenden, neuer Thread darf nichts machen,
+     * da availableThreads == 0
+     */
+    @Test
+    public void testInterruptedException() throws Exception {
+        testError("/issueInterruptedException");
+    }
+
+    private void testError(String url) throws Exception {
+        this.mvc.perform(get(url)).andExpect(status().isOk());
 
         Optional<EventProcessor> eventProcessor = axonConfiguration.eventProcessingConfiguration()
                 .eventProcessor("cardsummary");

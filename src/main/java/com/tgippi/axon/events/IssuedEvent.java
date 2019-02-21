@@ -1,20 +1,22 @@
 package com.tgippi.axon.events;
 
+import com.tgippi.axon.commands.ExceptionType;
+
 public class IssuedEvent {
 
     private final String id;
-    private final Integer amount;
+    private final ExceptionType type;
 
-    public IssuedEvent(String id, Integer amount) {
+    public IssuedEvent(String id, ExceptionType type) {
         this.id = id;
-        this.amount = amount;
+        this.type = type;
     }
 
     public String getId() {
         return id;
     }
 
-    public Integer getAmount() {
-        return amount;
+    public ExceptionType getType() {
+        return type;
     }
 }

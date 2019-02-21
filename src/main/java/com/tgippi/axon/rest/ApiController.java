@@ -1,11 +1,8 @@
 package com.tgippi.axon.rest;
 
-import com.tgippi.axon.commands.IssueCommand;
-import com.tgippi.axon.commands.RedeemCommand;
-import com.tgippi.axon.dto.CardSummaries;
-import com.tgippi.axon.query.FetchCardSummariesQuery;
+import com.tgippi.axon.commands.ExceptionType;
+import com.tgippi.axon.commands.IssueErrorCommand;
 import org.axonframework.config.Configuration;
-import org.axonframework.queryhandling.responsetypes.ResponseTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,28 +20,28 @@ public class ApiController {
         return "Greetings from Spring Boot!";
     }
 
-    @RequestMapping("/read")
-    public CardSummaries readSomething() throws Exception {
-        return configuration.queryGateway().query(
-                new FetchCardSummariesQuery(2, 0),
-                ResponseTypes.instanceOf(CardSummaries.class))
-                .get();
-    }
-
-    @RequestMapping("/issue")
-    public String issue() {
+    @RequestMapping("/issueAnyException")
+    public String issueAnyException() {
         configuration.commandGateway().sendAndWait(
-            new IssueCommand(UUID.randomUUID().toString(), 100)
+            new IssueErrorCommand(UUID.randomUUID().toString(), ExceptionType.ANY_EXCEPTION)
         );
         return "Issue Command abgeschickt";
     }
 
-    @RequestMapping("/redeem")
-    public String redeem() {
+    @RequestMapping("/issueError")
+    public String issueError() {
         configuration.commandGateway().sendAndWait(
-            new RedeemCommand("gc1", 50)
+                new IssueErrorCommand(UUID.randomUUID().toString(), ExceptionType.ERROR)
         );
-        return "Command abgeschickt";
+        return "Issue Command abgeschickt";
+    }
+
+    @RequestMapping("/issueInterruptedException")
+    public String issueInterruptedException() {
+        configuration.commandGateway().sendAndWait(
+                new IssueErrorCommand(UUID.randomUUID().toString(), ExceptionType.INTERRUPTEDEXCEPTION)
+        );
+        return "Issue Command abgeschickt";
     }
 
 }
