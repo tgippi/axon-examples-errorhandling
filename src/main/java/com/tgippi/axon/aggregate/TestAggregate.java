@@ -9,16 +9,16 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.spring.stereotype.Aggregate;
 
 @Aggregate
-public class GiftCard {
+public class TestAggregate {
 
     @AggregateIdentifier
     private String id;
 
-    public GiftCard() {
+    public TestAggregate() {
     }
 
     @CommandHandler
-    public GiftCard(IssueErrorCommand cmd) {
+    public TestAggregate(IssueErrorCommand cmd) {
         AggregateLifecycle.apply(new IssuedEvent(cmd.getId(), cmd.getType()));
     }
 

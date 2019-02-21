@@ -1,7 +1,7 @@
 axon:
   eventhandling:
     processors:
-      cardsummary:
+      test:
         mode: tracking
         source: eventBus
 spring:

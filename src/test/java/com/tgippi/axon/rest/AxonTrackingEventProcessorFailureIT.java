@@ -66,7 +66,7 @@ public class AxonTrackingEventProcessorFailureIT {
         this.mvc.perform(get(url)).andExpect(status().isOk());
 
         Optional<EventProcessor> eventProcessor = axonConfiguration.eventProcessingConfiguration()
-                .eventProcessor("cardsummary");
+                .eventProcessor("test");
 
         while(true) {
             if (eventProcessor.isPresent() && eventProcessor.get() instanceof TrackingEventProcessor) {

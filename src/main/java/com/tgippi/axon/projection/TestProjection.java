@@ -7,8 +7,8 @@ import org.axonframework.eventhandling.EventHandler;
 import org.springframework.stereotype.Component;
 
 @Component
-@ProcessingGroup("cardsummary")
-public class CardSummaryProjection {
+@ProcessingGroup("test")
+public class TestProjection {
 
     @EventHandler
     public void on(IssuedEvent evt) throws Throwable {
