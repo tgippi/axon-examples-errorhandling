@@ -1,12 +1,12 @@
 package com.tgippi.axon.commands;
 
-public class IssueErrorCommand {
+public class ErrorCommand {
 
     private final String id;
 
     private final ExceptionType type;
 
-    public IssueErrorCommand(String id, ExceptionType type) {
+    public ErrorCommand(String id, ExceptionType type) {
         this.id = id;
         this.type = type;
     }

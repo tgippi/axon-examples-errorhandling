@@ -2,12 +2,12 @@ package com.tgippi.axon.events;
 
 import com.tgippi.axon.commands.ExceptionType;
 
-public class IssuedEvent {
+public class ErrorEvent {
 
     private final String id;
     private final ExceptionType type;
 
-    public IssuedEvent(String id, ExceptionType type) {
+    public ErrorEvent(String id, ExceptionType type) {
         this.id = id;
         this.type = type;
     }

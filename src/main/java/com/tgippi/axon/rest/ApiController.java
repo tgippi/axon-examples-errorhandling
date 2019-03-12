@@ -1,13 +1,12 @@
 package com.tgippi.axon.rest;
 
+import com.tgippi.axon.commands.ErrorCommand;
 import com.tgippi.axon.commands.ExceptionType;
-import com.tgippi.axon.commands.IssueErrorCommand;
 import org.axonframework.config.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.UUID;
 
 @RestController
 public class ApiController {
@@ -15,33 +14,28 @@ public class ApiController {
     @Autowired
     private Configuration configuration;
 
-    @RequestMapping("/")
-    public String index() {
-        return "Greetings from Spring Boot!";
+    @RequestMapping("/issueAnyException/{id}")
+    public String issueAnyException(@PathVariable("id") String id) {
+        configuration.commandGateway().sendAndWait(
+            new ErrorCommand(id, ExceptionType.ANY_EXCEPTION)
+        );
+        return "Command sent";
     }
 
-    @RequestMapping("/issueAnyException")
-    public String issueAnyException() {
+    @RequestMapping("/issueError/{id}")
+    public String issueError(@PathVariable("id") String id) {
         configuration.commandGateway().sendAndWait(
-            new IssueErrorCommand(UUID.randomUUID().toString(), ExceptionType.ANY_EXCEPTION)
+                new ErrorCommand(id, ExceptionType.ERROR)
         );
-        return "Issue Command abgeschickt";
+        return "Command sent";
     }
 
-    @RequestMapping("/issueError")
-    public String issueError() {
+    @RequestMapping("/issueInterruptedException/{id}")
+    public String issueInterruptedException(@PathVariable("id") String id) {
         configuration.commandGateway().sendAndWait(
-                new IssueErrorCommand(UUID.randomUUID().toString(), ExceptionType.ERROR)
+                new ErrorCommand(id, ExceptionType.INTERRUPTEDEXCEPTION)
         );
-        return "Issue Command abgeschickt";
-    }
-
-    @RequestMapping("/issueInterruptedException")
-    public String issueInterruptedException() {
-        configuration.commandGateway().sendAndWait(
-                new IssueErrorCommand(UUID.randomUUID().toString(), ExceptionType.INTERRUPTEDEXCEPTION)
-        );
-        return "Issue Command abgeschickt";
+        return "Command sent";
     }
 
 }
